@@ -53,7 +53,6 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
             raiz = nuevo;
             rota = nuevo;
         }
-        nuevo.facteq = 0;
         
         if(rota != null)
         {
@@ -62,6 +61,15 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
                 balanceo(rota, rota.facteq);
             }
         }
+        
+        this.imprimeNiveles();
+    }
+    
+    public int alturaa(NodoAVL<T> nodo)
+    {
+        if(nodo == null)
+            return 0;
+          return 1+  Math.max(alturaa(nodo.getIzq()), alturaa(nodo.getDer()));
     }
     
     public NodoAVL<T> actualizafq(NodoAVL<T> nodo)
@@ -69,7 +77,7 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
         int nuevfact;
         if(nodo.getIzq() != null && nodo.getDer()!= null)
         {
-            nuevfact = nodo.getDer().altura()-nodo.getIzq().altura();
+            nuevfact =alturaa(nodo.getDer())-alturaa(nodo.getIzq());
             
         }
         else
@@ -82,16 +90,15 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
             {
                 if(nodo.getIzq() == null)
                 {
-                    nuevfact = nodo.getDer().altura();
+                    nuevfact = alturaa(nodo.getDer());
                 }
                 else
-                    nuevfact = -nodo.getIzq().altura();
+                    nuevfact = -alturaa(nodo.getIzq());
             }
         }
         nodo.setfacteq(nuevfact); 
         if(nodo == raiz || nuevfact == 2 || nuevfact == -2)
         {
-            System.out.println("sale en este nodo"+nodo.getElem()+" con este factor"+ nodo.facteq);
             return nodo;
         }
         else
@@ -100,7 +107,13 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
         }
     }
     
-    private NodoAVL<T> getInorden(NodoAVL<T> nodo)
+    
+    public NodoAVL<T> getInorden(NodoAVL<T>nodo)
+    {
+        return getinorden(nodo.getDer());
+    }
+    
+    private NodoAVL<T> getinorden(NodoAVL<T> nodo)
     {
         while(nodo.getIzq() != null)
         {
@@ -112,12 +125,10 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
     
     public void balanceo(NodoAVL<T> nodo, int fact)
     {
-        System.out.println("balanceop1"+fact);
         NodoAVL<T> aux;
         if(fact == 2)
         {
-            System.out.println("balanceop2"+ nodo.getDer().facteq);
-            if(nodo.getDer().facteq == 1)//si nodo es raiz problema
+            if(nodo.getDer().facteq == 1 || nodo.getDer().facteq == 0)//si nodo es raiz problema
             {
                 aux = nodo.getDer();
                 aux.setpapa(nodo.getPapa());
@@ -125,10 +136,15 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
                     nodo.getPapa().setDer(aux);
                 if(aux.getIzq() != null)
                     nodo.setDer(nodo.getDer().getIzq());
+                else
+                    nodo.setDer(null);
                 aux.setIzq(nodo);
                 nodo.setpapa(aux);
-                if(aux.getIzq()!= null)
-                    nodo.getDer().setpapa(nodo);
+                aux.getIzq().setpapa(aux);
+                
+                
+                if(nodo == raiz)
+                    raiz = aux;
                 
             }
             else
@@ -139,21 +155,39 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
                     nodo.getDer().setIzq(aux.getDer());
                     aux.getDer().setpapa(aux.getPapa());
                 }
+                else
+                    nodo.getDer().setIzq(null);
+                
                 aux.setDer(aux.getPapa());
                 if(aux.getIzq()!= null)
                 {
                     nodo.setDer(aux.getIzq());
                     aux.getIzq().setpapa(nodo);
                 }
+                else
+                    nodo.setDer(null);
+                
                 aux.setIzq(nodo);
                 aux.setpapa(nodo.getPapa());
+                
+                if(nodo.getPapa().getElem().compareTo(nodo.getElem())<0)
+                {
+                    nodo.getPapa().setIzq(aux);
+                }
+                else
+                {
+                    nodo.getPapa().setDer(aux);
+                }
                 nodo.setpapa(aux);
+                aux.getDer().setpapa(aux);
+                
+                if(nodo == raiz)
+                    raiz = aux;
             }
         }
         else
         {
-            System.out.println("balanceop2"+ nodo.getIzq().facteq);
-            if(nodo.getIzq().facteq == -1)
+            if(nodo.getIzq().facteq == -1 || nodo.getIzq().facteq == 0)
             {
                 aux = nodo.getIzq();
                 aux.setpapa(nodo.getPapa());
@@ -161,28 +195,51 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
                     nodo.getPapa().setIzq(aux);
                 if(aux.getDer() != null)
                     nodo.setIzq(nodo.getIzq().getDer());
+                else
+                    nodo.setIzq(null);
                 aux.setDer(nodo);
                 nodo.setpapa(aux);
-                if(aux.getIzq() != null)
-                    nodo.getIzq().setpapa(nodo);
+                aux.getDer().setpapa(aux);
+
+                if(nodo == raiz)
+                    raiz = aux;
             }
             else
             {
                 aux = nodo.getIzq().getDer();
-                if(aux.getDer()!= null)
+                if(aux.getIzq()!= null)
                 {
                     nodo.getIzq().setDer(aux.getIzq());
                     aux.getIzq().setpapa(aux.getPapa());
                 }
+                else
+                    nodo.getIzq().setDer(null);
+                
                 aux.setIzq(aux.getPapa());
-                if(aux.getIzq()!= null)
+                if(aux.getDer()!= null)
                 {
                     nodo.setIzq(aux.getDer());
                     aux.getDer().setpapa(nodo);
                 }
+                else
+                    nodo.setIzq(null);
+                
                 aux.setDer(nodo);
                 aux.setpapa(nodo.getPapa());
+                
+                if(nodo.getPapa().getElem().compareTo(nodo.getElem())<0)
+                {
+                    nodo.getPapa().setDer(aux);//-----.setDer
+                }
+                else
+                {
+                    nodo.getPapa().setIzq(aux);
+                }
                 nodo.setpapa(aux);
+                aux.getIzq().setpapa(aux);
+                
+                if(nodo == raiz)
+                    raiz = aux;
             }
         }
     }
@@ -206,16 +263,12 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
             
             
             rota = this.actualizafq(aux.getPapa());
-            while(rota.getPapa()!= null)
-            {
             if(rota != null)
             {
                 if(rota.facteq == 2 || rota.facteq == -2)
                 {
                     balanceo(rota, rota.facteq);
                 }
-            }
-            rota = this.actualizafq(rota);
             }
             
             aux.setpapa(null);
@@ -223,22 +276,24 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
         else
         {
             NodoAVL<T> inorden = this.getInorden(aux);
+            NodoAVL<T> pops;
             
-            inorden.setDer(aux.getDer());
-            inorden.setIzq(aux.getIzq());
             
-            rota = actualizafq(inorden.getPapa());
+            //aux.setElem(inorden.getElem());
             
-            if(inorden.getPapa().getElem().compareTo(elem) <0)
+            
+            if(inorden.getPapa().getElem().compareTo(inorden.getElem()) <0)
             {
                 inorden.getPapa().setDer(null);
             }
             else
                 inorden.getPapa().setIzq(null);
             
-        
-            while(rota.getPapa()!= null)
-            {
+            aux.setElem(inorden.getElem());
+            
+            pops = inorden.getPapa();
+            inorden.setpapa(null);
+            rota = actualizafq(pops);
             if(rota != null)
             {
                 if(rota.facteq == 2 || rota.facteq == -2)
@@ -246,33 +301,33 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
                     balanceo(rota, rota.facteq);
                 }
             }
-            rota = this.actualizafq(rota);
-            }
-            
-            inorden.setpapa(aux.getPapa());
-            aux.setpapa(null);
-        }
         }
         
+        }
+        
+        this.imprimeNiveles();
         return aux==null? null:aux.element;
     }
     
     
     public void imprimeNiveles()
     {
-        System.out.println(raiz.getElem());
-        imprimeNiveles(raiz);
+        if(raiz != null)
+        {
+            System.out.println(raiz.getElem()+" feq: "+ (alturaa(raiz.getDer())-alturaa(raiz.getIzq())));
+            imprimeNiveles(raiz);
+        }
     }
     private void imprimeNiveles(NodoAVL<T> nodo)
     {
         if(nodo.getIzq()!= null)
         {
-            System.out.println(nodo.getIzq().getElem().toString()+" altura"+nodo.getIzq().altura());
+            System.out.println(nodo.getIzq().getElem().toString()+" feq: "+ (alturaa(nodo.getIzq().getDer())-alturaa(nodo.getIzq().getIzq())));
             
             
             if(nodo.getDer() != null)
             {
-                 System.out.println(nodo.getDer().getElem().toString()+" altura"+nodo.getDer().altura());
+                 System.out.println(nodo.getDer().getElem().toString()+ " feq: "+ (alturaa(nodo.getDer().getDer())- alturaa(nodo.getDer().getIzq())));
                  imprimeNiveles(nodo.getIzq());
                  imprimeNiveles(nodo.getDer());
             }
@@ -283,7 +338,7 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
         {
             if(nodo.getDer()!= null)
             {
-                System.out.println(nodo.getDer().getElem().toString()+" altura"+nodo.getDer().altura());
+                System.out.println(nodo.getDer().getElem().toString()+ " feq: "+ (alturaa(nodo.getDer().getDer())- alturaa(nodo.getDer().getIzq())));
                 imprimeNiveles(nodo.getDer());
             }
         }
@@ -305,16 +360,8 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
                 aux = aux.getDer();
         }
         
-        while(!elem.equals(aux.getElem())&& !sal)
-        {
-            if(aux.getPapa().getElem().compareTo(elem)<0 && aux.getElem().compareTo(elem)>0)
-                sal = true;
-            else
-            {
-                if(aux.getPapa().getElem().compareTo(elem)>0 && aux.getElem().compareTo(elem)<0)
-                    sal = true;
-            }
-                
+        while(!sal && aux != null && !elem.equals(aux.getElem()))
+        {    
             if(!sal)
             {
                 if(elem.compareTo(aux.getElem()) < 0)
@@ -329,9 +376,13 @@ public class ArbolAVL<T extends Comparable<T>> extends BST<T> {
             
         }
         
-        if(elem.equals(aux.getElem()))
+        
+        if(aux != null)
         {
-            resp = aux;
+            if(elem.equals(aux.getElem()))
+            {
+                resp = aux;
+            }
         }
         
         

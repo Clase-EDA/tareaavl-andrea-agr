@@ -9,18 +9,23 @@ package arbol;
  *
  * @author aguil
  */
-public class NodoAVL <T extends Comparable<T>> extends NodoBT<T>{
+public class NodoAVL <T extends Comparable<T>>{
 
     int facteq;
-    NodoAVL<T> izqa, dera, papaa;
+    T element;
+    NodoAVL<T> izq, der, papa;
     
     public NodoAVL(T elem) {
-        super(elem);
         izq = null;
         der = null;
         papa = null;
+        this.element = elem;
     }
     
+    public T getElem()
+    {
+        return element;
+    }
     public void setfacteq(int fact)
     {
         facteq = fact;
@@ -69,7 +74,12 @@ public class NodoAVL <T extends Comparable<T>> extends NodoBT<T>{
         return papa;
     }
     
-    public int altura(){  
+    public void setElem(T elem)
+    {
+        this.element = elem;
+    }
+    
+    /*public int altura(){  
         int izq, der;
         if (getIzq() == null)
             izq = 0;
@@ -82,6 +92,7 @@ public class NodoAVL <T extends Comparable<T>> extends NodoBT<T>{
         int res = (izq < der) ? der : izq;
         return res + 1;
     }//method
+    */
     
     /*public int altura()
     {
